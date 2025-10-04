@@ -150,3 +150,6 @@ CORS_ALLOWED_ORIGINS = [
     'http://66.23.233.94',
     "http://66.23.233.94",
 ]
+
+CACHE_NETCDF_DIR = BASE_DIR / 'nc_cache'
+os.makedirs(CACHE_NETCDF_DIR, exist_ok=True)
