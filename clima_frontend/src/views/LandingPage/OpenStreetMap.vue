@@ -63,29 +63,69 @@
                         </div>
                     </div>
 
-                    <!-- Barra de búsqueda mejorada -->
+                    <!-- Barra de búsqueda mejorada con autocompletado -->
                     <div ref="searchRef" class="search-container max-w-[650px] mx-auto mb-4 animate-on-scroll">
                         <div class="search-enhanced rounded-2xl p-1 transition-all duration-300 hover:shadow-xl group">
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                                    <svg class="w-5 h-5 text-emerald-500 group-focus-within:text-emerald-600 transition-colors"
+                                    <svg v-if="!searchingCities" class="w-5 h-5 text-emerald-500 group-focus-within:text-emerald-600 transition-colors"
                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
+                                    <svg v-else class="w-5 h-5 text-emerald-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
                                 </div>
-                                <input v-model="searchQuery" type="text"
-                                    placeholder="Buscar ubicación por nombre o condición climática..." class="w-full pl-12 pr-4 py-4 bg-transparent border-0 rounded-xl 
-                        text-slate-700 placeholder-slate-400
-                        focus:outline-none focus:ring-0 
-                        text-base font-medium" />
-                                <!-- Indicador de resultados -->
-                                <div v-if="searchQuery" class="absolute inset-y-0 right-0 pr-4 flex items-center">
-                                    <span
-                                        class="text-sm text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded-full">
-                                        {{ filteredLocations.length }} encontradas
-                                    </span>
+                                <input 
+                                    v-model="searchQuery" 
+                                    type="text"
+                                    placeholder="Buscar ciudad en el mundo (ej: Lima, Bogotá, París...)" 
+                                    class="w-full pl-12 pr-4 py-4 bg-transparent border-0 rounded-xl 
+                                        text-slate-700 placeholder-slate-400
+                                        focus:outline-none focus:ring-0 
+                                        text-base font-medium transition-all"
+                                    @keydown.enter="searchCities"
+                                    @input="onSearchInput" />
+                                
+                                <!-- Botón de búsqueda -->
+                                <button 
+                                    v-if="searchQuery.trim().length > 0"
+                                    @click="searchCities"
+                                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-emerald-600 hover:text-emerald-700 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <!-- Resultados de búsqueda -->
+                            <div v-if="searchResults.length > 0" class="search-results mt-2 max-h-80 overflow-y-auto bg-white rounded-xl shadow-lg border border-slate-200">
+                                <div 
+                                    v-for="result in searchResults" 
+                                    :key="result.place_id"
+                                    @click="selectSearchResult(result)"
+                                    class="search-result-item p-3 hover:bg-emerald-50 cursor-pointer transition-colors border-b border-slate-100 last:border-b-0">
+                                    <div class="flex items-start gap-3">
+                                        <div class="text-2xl">📍</div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="font-semibold text-slate-800 text-sm">{{ result.display_name.split(',')[0] }}</div>
+                                            <div class="text-xs text-slate-500 truncate">{{ result.display_name }}</div>
+                                            <div class="text-xs text-emerald-600 mt-1">{{ result.type }}</div>
+                                        </div>
+                                        <svg class="w-5 h-5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </div>
                                 </div>
+                            </div>
+                            
+                            <!-- Mensaje cuando no hay resultados -->
+                            <div v-else-if="searchQuery.trim().length > 2 && !searchingCities && searchAttempted" 
+                                class="mt-2 p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
+                                <p class="text-sm text-amber-800">🔍 No se encontraron ciudades con ese nombre</p>
+                                <p class="text-xs text-amber-600 mt-1">Intenta con otro nombre o haz clic en el mapa</p>
                             </div>
                         </div>
                     </div>
@@ -362,6 +402,9 @@ const showingUserLocation = ref<boolean>(false);
 const selectedLocation = ref<any | null>(null);
 const clickMarker = ref<any | null>(null);
 const searchQuery = ref<string>('');
+const searchResults = ref<Array<any>>([]);
+const searchingCities = ref<boolean>(false);
+const searchAttempted = ref<boolean>(false);
 const nearestModalVisible = ref<boolean>(false);
 const nearestLocation = ref<any | null>(null); // Cambiado de nearestSucursal a nearestLocation
 const mapInitialized = ref<boolean>(false);
@@ -696,7 +739,11 @@ const showUserLocation = async () => {
             html: `
         <div class="user-marker-pin-enhanced">
           <div class="user-marker-pulse"></div>
-          <div class="user-marker-center">📍</div>
+          <div class="user-marker-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+          </div>
         </div>
       `,
             iconSize: [30, 30],
@@ -733,8 +780,23 @@ const onMapClick = async (e: any) => {
             clickMarker.value = null
         }
 
-        // crear nuevo marcador
-        clickMarker.value = L.marker([lat, lng]).addTo(map.value)
+        // crear nuevo marcador con icono personalizado
+        const clickIcon = L.divIcon({
+            className: 'click-location-marker',
+            html: `
+                <div class="click-marker-container">
+                    <div class="click-marker-pin">
+                        <div class="click-marker-icon">📍</div>
+                    </div>
+                    <div class="click-marker-shadow"></div>
+                </div>
+            `,
+            iconSize: [40, 50],
+            iconAnchor: [20, 50],
+            popupAnchor: [0, -50]
+        })
+        
+        clickMarker.value = L.marker([lat, lng], { icon: clickIcon }).addTo(map.value)
 
         // mostrar estado provisional
         selectedLocation.value = {
@@ -812,6 +874,30 @@ const confirmSelection = async () => {
                 forecast: formattedForecast
             })
             
+            // Guardar ubicación en el array para búsqueda
+            const newLocation = {
+                id: `loc_${Date.now()}`,
+                nombre: formattedCurrent.location || selectedLocation.value.displayName,
+                descripcion: formattedCurrent.description,
+                latitud: String(selectedLocation.value.lat),
+                longitud: String(selectedLocation.value.lon),
+                temperatura: formattedCurrent.temperature,
+                condicion: formattedCurrent.description,
+                humedad: formattedCurrent.humidity,
+                viento: formattedCurrent.windSpeed
+            }
+            
+            // Agregar solo si no existe ya
+            const exists = locations.value.find(loc => 
+                Math.abs(parseFloat(loc.latitud) - selectedLocation.value.lat) < 0.01 &&
+                Math.abs(parseFloat(loc.longitud) - selectedLocation.value.lon) < 0.01
+            )
+            
+            if (!exists) {
+                locations.value.push(newLocation)
+                console.log('💾 Ubicación guardada para búsquedas futuras')
+            }
+            
             // Emitir datos al componente padre
             emit('weatherDataLoaded', {
                 location: selectedLocation.value,
@@ -822,18 +908,37 @@ const confirmSelection = async () => {
             
             emit('locationSelected', selectedLocation.value)
             
-            // Actualizar popup del marcador con temperatura
-            if (clickMarker.value && formattedCurrent) {
+            // Reemplazar marcador de click con marcador de clima
+            if (clickMarker.value && map.value && formattedCurrent) {
+                // Remover marcador de click
+                map.value.removeLayer(clickMarker.value)
+                clickMarker.value = null
+                
+                // Crear nuevo marcador con icono de clima
+                const weatherMarker = L.marker(
+                    [selectedLocation.value.lat, selectedLocation.value.lon], 
+                    { icon: createCustomIcon(formattedCurrent.description, formattedCurrent.temperature) }
+                ).addTo(map.value)
+                
                 const popupContent = `
-                    <div style="text-align: center;">
-                        <strong>${formattedCurrent.location}</strong><br>
-                        <div style="font-size: 24px; margin: 8px 0;">${openWeatherService.getWeatherEmoji(formattedCurrent.icon)}</div>
-                        <div style="font-size: 20px; font-weight: bold;">${formattedCurrent.temperature}°C</div>
-                        <div style="color: #666; font-size: 12px;">${formattedCurrent.description}</div>
+                    <div style="text-align: center; min-width: 180px;">
+                        <strong style="font-size: 14px; color: #1f2937;">${formattedCurrent.location}</strong><br>
+                        <div style="font-size: 32px; margin: 8px 0;">${openWeatherService.getWeatherEmoji(formattedCurrent.icon)}</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #059669;">${formattedCurrent.temperature}°C</div>
+                        <div style="color: #6b7280; font-size: 13px; margin-top: 4px;">${formattedCurrent.description}</div>
+                        <div style="color: #9ca3af; font-size: 11px; margin-top: 8px;">💧 ${formattedCurrent.humidity}% | 💨 ${formattedCurrent.windSpeed} m/s</div>
                     </div>
                 `
-                clickMarker.value.bindPopup(popupContent).openPopup()
+                weatherMarker.bindPopup(popupContent).openPopup()
+                
+                // Agregar al layer de marcadores
+                if (markersLayer.value) {
+                    markersLayer.value.addLayer(weatherMarker)
+                }
             }
+            
+            // Limpiar selección
+            selectedLocation.value = null
         } else {
             console.error('❌ Error al obtener datos del clima:', weatherData.error)
             alert(`Error al obtener datos del clima: ${weatherData.error}`)
@@ -842,6 +947,129 @@ const confirmSelection = async () => {
     } catch (error) {
         console.error('❌ Error en confirmSelection:', error)
         alert('Error al obtener datos del clima. Por favor, intenta nuevamente.')
+    }
+}
+
+// Búsqueda de ciudades con Nominatim API
+const searchCities = async () => {
+    const query = searchQuery.value.trim()
+    if (query.length < 2) {
+        searchResults.value = []
+        return
+    }
+    
+    try {
+        searchingCities.value = true
+        searchAttempted.value = false
+        
+        // Usar Nominatim para buscar ciudades
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=8&addressdetails=1`
+        
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'clima_frontend/1.0'
+            }
+        })
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`)
+        }
+        
+        const data = await response.json()
+        
+        // Filtrar solo ciudades, pueblos, etc.
+        searchResults.value = data.filter((result: any) => 
+            result.type === 'city' || 
+            result.type === 'town' || 
+            result.type === 'village' ||
+            result.type === 'administrative' ||
+            result.class === 'place'
+        )
+        
+        searchAttempted.value = true
+        console.log(`🔍 Búsqueda "${query}": ${searchResults.value.length} resultados`)
+        
+    } catch (error) {
+        console.error('Error buscando ciudades:', error)
+        searchResults.value = []
+        searchAttempted.value = true
+    } finally {
+        searchingCities.value = false
+    }
+}
+
+// Manejar input de búsqueda con debounce
+let searchDebounce: any = null
+const onSearchInput = () => {
+    searchAttempted.value = false
+    
+    if (searchDebounce) {
+        clearTimeout(searchDebounce)
+    }
+    
+    if (searchQuery.value.trim().length < 2) {
+        searchResults.value = []
+        return
+    }
+    
+    searchDebounce = setTimeout(() => {
+        searchCities()
+    }, 500) // Esperar 500ms después de que el usuario deje de escribir
+}
+
+// Seleccionar un resultado de búsqueda
+const selectSearchResult = async (result: any) => {
+    console.log('📍 Ciudad seleccionada:', result.display_name)
+    
+    const lat = parseFloat(result.lat)
+    const lon = parseFloat(result.lon)
+    
+    // Limpiar resultados
+    searchResults.value = []
+    searchQuery.value = ''
+    
+    // Mover el mapa a la ubicación
+    if (map.value) {
+        map.value.flyTo([lat, lon], 12, {
+            duration: 1.5
+        })
+    }
+    
+    // Crear marcador temporal de click
+    if (clickMarker.value && map.value && map.value.hasLayer(clickMarker.value)) {
+        map.value.removeLayer(clickMarker.value)
+        clickMarker.value = null
+    }
+    
+    const clickIcon = L.divIcon({
+        className: 'click-location-marker',
+        html: `
+            <div class="click-marker-container">
+                <div class="click-marker-pin">
+                    <div class="click-marker-icon">📍</div>
+                </div>
+                <div class="click-marker-shadow"></div>
+            </div>
+        `,
+        iconSize: [40, 50],
+        iconAnchor: [20, 50],
+        popupAnchor: [0, -50]
+    })
+    
+    clickMarker.value = L.marker([lat, lon], { icon: clickIcon }).addTo(map.value!)
+    
+    // Establecer ubicación seleccionada
+    selectedLocation.value = {
+        lat,
+        lon,
+        displayName: result.display_name,
+        address: result.address || null,
+        loading: false
+    }
+    
+    // Abrir popup
+    if (clickMarker.value) {
+        clickMarker.value.bindPopup(`<strong>Seleccionado</strong><br>${result.display_name}`).openPopup()
     }
 }
 
@@ -1044,19 +1272,80 @@ onMounted(async () => {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.search-enhanced:hover {
+.search-enhanced:has(input:disabled) {
+    background: rgba(248, 250, 252, 0.9);
+    border-color: rgba(148, 163, 184, 0.2);
+    opacity: 0.7;
+}
+
+.search-enhanced:has(input:disabled) input {
+    cursor: not-allowed;
+    color: #94a3b8;
+}
+
+.search-enhanced:hover:not(:has(input:disabled)) {
     border-color: rgba(16, 185, 129, 0.2);
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.12),
         0 4px 12px rgba(16, 185, 129, 0.15);
 }
 
-.search-enhanced:focus-within {
+.search-enhanced:focus-within:not(:has(input:disabled)) {
     border-color: rgba(16, 185, 129, 0.3);
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.12),
         0 4px 12px rgba(16, 185, 129, 0.2),
         0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+/* Resultados de búsqueda */
+.search-results {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-result-item {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.search-result-item:first-child {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+}
+
+.search-result-item:last-child {
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+}
+
+/* Spinner de carga */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
 }
 
 /* Wrapper y divisor entre secciones */
@@ -1232,46 +1521,56 @@ onMounted(async () => {
 }
 
 :deep(.marker-pin-enhanced) {
-    width: 40px;
-    height: 50px;
-    border: 3px solid rgba(255, 255, 255, 0.9);
+    width: 42px;
+    height: 42px;
+    border: 3px solid rgba(255, 255, 255, 0.95);
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-        0 6px 20px rgba(0, 0, 0, 0.25),
-        0 2px 8px rgba(0, 0, 0, 0.15);
+        0 6px 20px rgba(0, 0, 0, 0.3),
+        0 3px 10px rgba(0, 0, 0, 0.2),
+        inset 0 -2px 6px rgba(0, 0, 0, 0.15);
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     overflow: hidden;
+    cursor: pointer;
 }
 
 :deep(.marker-pin-enhanced::before) {
     content: '';
     position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
-    border-radius: 50% 50% 50% 0;
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
+    border-radius: 50%;
+    top: 8px;
+    left: 8px;
+    transform: rotate(45deg);
+    pointer-events: none;
     z-index: 0;
 }
 
 :deep(.marker-pin-enhanced:hover) {
-    transform: rotate(-45deg) scale(1.15);
+    transform: rotate(-45deg) scale(1.25);
     box-shadow:
-        0 8px 28px rgba(0, 0, 0, 0.3),
-        0 4px 12px rgba(0, 0, 0, 0.2);
+        0 10px 35px rgba(0, 0, 0, 0.4),
+        0 5px 15px rgba(0, 0, 0, 0.3),
+        inset 0 -3px 8px rgba(0, 0, 0, 0.2);
 }
 
 :deep(.marker-icon) {
     transform: rotate(45deg);
-    font-size: 18px;
+    font-size: 22px;
     z-index: 1;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: transform 0.2s ease;
+}
+
+:deep(.marker-pin-enhanced:hover .marker-icon) {
+    transform: rotate(45deg) scale(1.1);
 }
 
 /* Marcador de usuario mejorado */
@@ -1324,6 +1623,91 @@ onMounted(async () => {
     100% {
         transform: translate(-50%, -50%) scale(2);
         opacity: 0;
+    }
+}
+
+/* Marcador de click mejorado */
+:deep(.click-location-marker) {
+    background: transparent;
+    border: none;
+}
+
+:deep(.click-marker-container) {
+    width: 40px;
+    height: 50px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+:deep(.click-marker-pin) {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: 3px solid white;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 4px 12px rgba(16, 185, 129, 0.4),
+        0 8px 24px rgba(16, 185, 129, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: bounce-pin 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    z-index: 2;
+}
+
+:deep(.click-marker-pin:hover) {
+    transform: rotate(-45deg) scale(1.1);
+    box-shadow: 
+        0 6px 16px rgba(16, 185, 129, 0.5),
+        0 10px 30px rgba(16, 185, 129, 0.3);
+}
+
+:deep(.click-marker-icon) {
+    transform: rotate(45deg);
+    font-size: 20px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+:deep(.click-marker-shadow) {
+    position: absolute;
+    width: 24px;
+    height: 8px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+    border-radius: 50%;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: shadow-pulse 2s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes bounce-pin {
+    0% {
+        transform: rotate(-45deg) translateY(-100px) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: rotate(-45deg) translateY(0) scale(1.1);
+    }
+    100% {
+        transform: rotate(-45deg) translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes shadow-pulse {
+    0%, 100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translateX(-50%) scale(1.2);
+        opacity: 0.15;
     }
 }
 
