@@ -1,30 +1,65 @@
 <template>
-    <div style="background: #0e0e0e; min-height: 100vh; color: #fff;">
+    <div class="landing-root">
+        <!-- DarkVeil as full-bleed background -->
+        <DarkVeil
+            class="background-veil"
+            :hue-shift="0"
+            :noise-intensity="0"
+            :scanline-intensity="0"
+            :speed="0.5"
+            :scanline-frequency="0"
+            :warp-amount="0"
+            :resolution-scale="1"
+        />
         <div class="landing-container">
             <!-- Componente del mapa -->
             <div class="map-wrapper">
                 <OpenStreetMap />
             </div>
-            
+
             <!-- Panel de información del clima -->
             <div class="weather-panel-wrapper">
                 <WeatherPanel />
             </div>
-        </div>
+    </div>
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import OpenStreetMap from './OpenStreetMap.vue'
 import WeatherPanel from './WeatherPanel.vue'
+import DarkVeil from '../DarkVeil.vue'
 </script>
 
 <style scoped>
+.landing-root {
+    min-height: 100vh;
+    color: #fff;
+    position: relative;
+    background: #0e0e0e; /* fallback if DarkVeil is not available */
+    overflow: hidden;
+}
+
+.background-veil {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* size responsive but constrained so the veil looks centered */
+    width: min(1100px, 90vw);
+    height: min(700px, 70vh);
+    z-index: 0;
+    pointer-events: none; /* allow clicks through to map */
+    opacity: 0.98;
+}
+
 .landing-container {
     display: flex;
     flex-direction: column;
     gap: 32px;
     padding: 0;
+    position: relative;
+    z-index: 2; /* content above the DarkVeil */
 }
 
 .map-wrapper {
