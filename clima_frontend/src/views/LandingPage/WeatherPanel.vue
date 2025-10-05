@@ -178,7 +178,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Line, Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -192,6 +192,7 @@ import {
   Legend,
   Filler
 } from 'chart.js'
+import openWeatherService from '../../services/openWeatherService.js'
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -206,7 +207,19 @@ ChartJS.register(
   Filler
 )
 
-// Datos estáticos (serán reemplazados por API)
+// Props desde LandingPage
+const props = defineProps({
+  weatherData: {
+    type: Object,
+    default: null
+  },
+  selectedLocation: {
+    type: Object,
+    default: null
+  }
+})
+
+// Datos reactivos con valores por defecto
 const currentLocation = ref('Huánuco, Perú')
 const currentDate = ref('Sábado, 5 de Octubre 2025')
 const currentTemp = ref(17)
@@ -221,7 +234,7 @@ const cloudiness = ref('14')
 const sunrise = ref('05:45')
 const sunset = ref('18:01')
 
-// Pronóstico semanal
+// Pronóstico semanal (valores por defecto)
 const forecast = ref([
   { day: 'Lun', icon: '☀️', max: 29, min: 13, condition: 'Soleado' },
   { day: 'Mar', icon: '🌤️', max: 27, min: 14, condition: 'Nublado' },
@@ -231,6 +244,59 @@ const forecast = ref([
   { day: 'Sáb', icon: '⛈️', max: 25, min: 14, condition: 'Tormenta' },
   { day: 'Dom', icon: '☁️', max: 25, min: 14, condition: 'Nublado' }
 ])
+
+// Watch para actualizar cuando llegan nuevos datos del clima actual
+watch(() => props.weatherData?.current, (newCurrent) => {
+  if (newCurrent) {
+    console.log('🔄 WeatherPanel: Actualizando datos del clima actual:', newCurrent)
+    
+    currentLocation.value = newCurrent.location || 'Ubicación desconocida'
+    currentTemp.value = newCurrent.temperature || 0
+    feelsLike.value = newCurrent.feelsLike || 0
+    weatherCondition.value = newCurrent.description || 'N/A'
+    weatherIcon.value = openWeatherService.getWeatherEmoji(newCurrent.icon) || '🌤️'
+    wind.value = String(newCurrent.windSpeed || 0)
+    humidity.value = String(newCurrent.humidity || 0)
+    pressure.value = String(newCurrent.pressure || 0)
+    cloudiness.value = String(newCurrent.cloudiness || 0)
+    sunrise.value = newCurrent.sunrise || 'N/A'
+    sunset.value = newCurrent.sunset || 'N/A'
+    
+    // UV Index - por ahora "Baja" ya que el API básico no lo incluye
+    uvIndex.value = 'Baja'
+    
+    console.log('✅ WeatherPanel: Datos actualizados correctamente')
+  }
+}, { immediate: true, deep: true })
+
+// Watch para actualizar el pronóstico semanal
+watch(() => props.weatherData?.forecast, (newForecast) => {
+  if (newForecast && Array.isArray(newForecast) && newForecast.length > 0) {
+    console.log('🔄 WeatherPanel: Actualizando pronóstico semanal:', newForecast)
+    
+    forecast.value = newForecast.map(day => ({
+      day: day.day || 'N/A',
+      icon: openWeatherService.getWeatherEmoji(day.icon) || '🌤️',
+      max: day.tempMax || 0,
+      min: day.tempMin || 0,
+      condition: day.description || 'N/A'
+    }))
+    
+    console.log('✅ WeatherPanel: Pronóstico actualizado:', forecast.value)
+  }
+}, { immediate: true, deep: true })
+
+// Watch para actualizar la fecha cuando cambia la ubicación
+watch(() => props.selectedLocation, (newLocation) => {
+  if (newLocation) {
+    // Actualizar con la fecha actual
+    const now = new Date()
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    
+    currentDate.value = `${dias[now.getDay()]}, ${now.getDate()} de ${meses[now.getMonth()]} ${now.getFullYear()}`
+  }
+}, { immediate: true })
 
 // Carrusel responsive
 const currentSlide = ref(0)

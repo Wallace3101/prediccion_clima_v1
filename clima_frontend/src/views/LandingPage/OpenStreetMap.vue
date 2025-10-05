@@ -336,10 +336,14 @@ import 'leaflet/dist/leaflet.css';
 import { useScrollAnimation } from '@/composables/useScrollAnimation';
 import SplitText from "../SplitText.vue";
 import RotatingText from "../RotatingText.vue";
+import openWeatherService from '../../services/openWeatherService.js';
 
 const handleAnimationComplete = () => {
     console.log('All letters have animated!');
   };
+
+// Definir emits para enviar datos al componente padre
+const emit = defineEmits(['weatherDataLoaded', 'locationSelected']);
 
 // Animaciones on scroll
 const { elementRef: titleRef } = useScrollAnimation();
@@ -373,64 +377,8 @@ const mapConfig = {
     minZoom: 6,
 };
 
-// Datos de ejemplo de ubicaciones con clima (reemplaza esto con tu API)
-const sampleLocations = [
-    {
-        id: 1,
-        nombre: 'Centro de Huánuco',
-        latitud: -9.9306,
-        longitud: -76.2422,
-        temperatura: 22,
-        humedad: 65,
-        condicion: 'Soleado',
-        categoria: 'Ciudad',
-        descripcion: 'Centro histórico de Huánuco'
-    },
-    {
-        id: 2,
-        nombre: 'Kotosh',
-        latitud: -9.9450,
-        longitud: -76.2700,
-        temperatura: 20,
-        humedad: 70,
-        condicion: 'Nublado',
-        categoria: 'Arqueológico',
-        descripcion: 'Templo de las Manos Cruzadas'
-    },
-    {
-        id: 3,
-        nombre: 'Pillco Mozo',
-        latitud: -9.8800,
-        longitud: -76.2200,
-        temperatura: 24,
-        humedad: 60,
-        condicion: 'Soleado',
-        categoria: 'Distrito',
-        descripcion: 'Zona residencial'
-    },
-    {
-        id: 4,
-        nombre: 'Amarilis',
-        latitud: -9.9500,
-        longitud: -76.2300,
-        temperatura: 21,
-        humedad: 68,
-        condicion: 'Parcialmente Nublado',
-        categoria: 'Distrito',
-        descripcion: 'Distrito de Amarilis'
-    },
-    {
-        id: 5,
-        nombre: 'Cayhuayna',
-        latitud: -9.9200,
-        longitud: -76.2100,
-        temperatura: 23,
-        humedad: 62,
-        condicion: 'Soleado',
-        categoria: 'Zona',
-        descripcion: 'Zona residencial y comercial'
-    }
-];
+// Datos de ubicaciones - iniciamos con array vacío, el usuario las selecciona con click
+const sampleLocations: any[] = [];
 
 // Filtrar ubicaciones según el texto ingresado en el buscador
 const filteredLocations = computed(() => {
@@ -445,21 +393,9 @@ const filteredLocations = computed(() => {
 
 // Cargar ubicaciones (reemplaza esto con tu servicio de clima cuando esté listo)
 const loadLocations = async () => {
-    try {
-        // Simular carga de datos
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // TODO: Cuando conectes con el backend, reemplaza esto con:
-        // const response = await weatherService.getWeatherLocations();
-        // locations.value = response.data || sampleLocations;
-        
-        // Por ahora, usar datos de ejemplo
-        locations.value = sampleLocations;
-        
-    } catch (error) {
-        console.error('Error cargando ubicaciones:', error);
-        locations.value = sampleLocations; // Usar datos de ejemplo si falla
-    }
+    // No cargar ubicaciones por defecto - el usuario las selecciona con click
+    locations.value = [];
+    console.log('✅ Mapa listo - haz click para seleccionar una ubicación');
 };
 
 // Inicializar el mapa
@@ -851,11 +787,62 @@ const clearSelection = () => {
     selectedLocation.value = null
 }
 
-const confirmSelection = () => {
-    if (!selectedLocation.value) return
-    // Por ahora solo mostrar en consola; más adelante emitir evento o integrar con backend
-    console.log('Ubicación confirmada:', selectedLocation.value)
-    // posible emit: emit('locationSelected', selectedLocation.value)
+const confirmSelection = async () => {
+    if (!selectedLocation.value || selectedLocation.value.loading) return
+    
+    try {
+        console.log('📍 Ubicación confirmada:', selectedLocation.value)
+        console.log('🌤️ Obteniendo datos del clima de OpenWeatherMap...')
+        
+        // Llamar a la API de OpenWeatherMap con las coordenadas
+        const weatherData = await openWeatherService.getCompleteWeatherData(
+            selectedLocation.value.lat,
+            selectedLocation.value.lon
+        )
+        
+        if (weatherData.success) {
+            console.log('✅ Datos del clima obtenidos:', weatherData)
+            
+            // Formatear datos para visualización
+            const formattedCurrent = openWeatherService.formatCurrentWeather(weatherData.current)
+            const formattedForecast = openWeatherService.formatForecast(weatherData.forecast)
+            
+            console.log('📊 Datos formateados:', {
+                current: formattedCurrent,
+                forecast: formattedForecast
+            })
+            
+            // Emitir datos al componente padre
+            emit('weatherDataLoaded', {
+                location: selectedLocation.value,
+                current: formattedCurrent,
+                forecast: formattedForecast,
+                raw: weatherData
+            })
+            
+            emit('locationSelected', selectedLocation.value)
+            
+            // Actualizar popup del marcador con temperatura
+            if (clickMarker.value && formattedCurrent) {
+                const popupContent = `
+                    <div style="text-align: center;">
+                        <strong>${formattedCurrent.location}</strong><br>
+                        <div style="font-size: 24px; margin: 8px 0;">${openWeatherService.getWeatherEmoji(formattedCurrent.icon)}</div>
+                        <div style="font-size: 20px; font-weight: bold;">${formattedCurrent.temperature}°C</div>
+                        <div style="color: #666; font-size: 12px;">${formattedCurrent.description}</div>
+                    </div>
+                `
+                clickMarker.value.bindPopup(popupContent).openPopup()
+            }
+        } else {
+            console.error('❌ Error al obtener datos del clima:', weatherData.error)
+            alert(`Error al obtener datos del clima: ${weatherData.error}`)
+        }
+        
+    } catch (error) {
+        console.error('❌ Error en confirmSelection:', error)
+        alert('Error al obtener datos del clima. Por favor, intenta nuevamente.')
+    }
 }
 
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {

@@ -14,21 +14,50 @@
         <div class="landing-container">
             <!-- Componente del mapa -->
             <div class="map-wrapper">
-                <OpenStreetMap />
+                <OpenStreetMap 
+                    @weather-data-loaded="handleWeatherDataLoaded"
+                    @location-selected="handleLocationSelected"
+                />
             </div>
 
-            <!-- Panel de información del clima -->
-            <div class="weather-panel-wrapper">
-                <WeatherPanel />
-            </div>
+            <!-- Panel de información del clima (collapsable) -->
+            <transition name="slide-fade">
+                <div v-if="showWeatherPanel" class="weather-panel-wrapper">
+                    <WeatherPanel 
+                        :weather-data="weatherData"
+                        :selected-location="selectedLocation"
+                    />
+                </div>
+            </transition>
     </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import OpenStreetMap from './OpenStreetMap.vue'
 import WeatherPanel from './WeatherPanel.vue'
 import DarkVeil from '../DarkVeil.vue'
+
+// Estado para almacenar los datos del clima
+const weatherData = ref<any>(null)
+const selectedLocation = ref<any>(null)
+
+// Computed para saber si el panel debe mostrarse
+const showWeatherPanel = computed(() => {
+    return weatherData.value !== null && weatherData.value.current !== undefined
+})
+
+// Handlers para eventos del mapa
+const handleWeatherDataLoaded = (data: any) => {
+    console.log('🌍 LandingPage: Datos del clima recibidos:', data)
+    weatherData.value = data
+}
+
+const handleLocationSelected = (location: any) => {
+    console.log('📍 LandingPage: Ubicación seleccionada:', location)
+    selectedLocation.value = location
+}
 </script>
 
 <style scoped>
@@ -114,6 +143,38 @@ import DarkVeil from '../DarkVeil.vue'
 @media (max-width: 768px) {
     .weather-panel-wrapper {
         padding: 0 16px 32px 16px;
+    }
+}
+
+/* Transiciones para el panel collapsable */
+.slide-fade-enter-active {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-fade-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.slide-fade-enter-from {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.slide-fade-leave-to {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+/* En móvil, deslizar desde abajo */
+@media (max-width: 1399px) {
+    .slide-fade-enter-from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    
+    .slide-fade-leave-to {
+        transform: translateY(50px);
+        opacity: 0;
     }
 }
 </style>
