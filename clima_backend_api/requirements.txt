@@ -1,0 +1,10 @@
+Django>=4.2,<5
+djangorestframework
+django-cors-headers
+python-decouple
+cdsapi
+xarray
+netcdf4
+numpy
+pandas
+scipy
