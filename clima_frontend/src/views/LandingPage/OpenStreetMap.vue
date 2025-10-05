@@ -24,12 +24,12 @@
 
                 <div class="container mx-auto px-4 py-2 relative z-10">
                     <!-- Header mejorado con efectos -->
-                    <div ref="titleRef" class="text-center mb-2 animate-on-scroll">
+                    <div ref="titleRef" class="text-center mb-4 animate-on-scroll">
                         <div class="inline-block relative">
                             <h2 class="section-title mb-0">
                             <SplitText
-                                text="ClimaMapa Huánuco"
-                                class-name="text-3xl font-semibold text-center leading-tight"
+                                text="ClimateMap"
+                                class-name="text-5xl font-semibold text-center leading-tight"
                                 :delay="100"
                                 :duration="0.6"
                                 ease="power3.out"
@@ -58,7 +58,7 @@
                         :staggerDuration="0.025"
                         splitLevelClassName="overflow-hidden pb-0.5"
                         :transition="{ type: 'spring', damping: 30, stiffness: 400 }"
-                        :rotationInterval="4000"
+                        :rotationInterval="5000"
                         />
                         </div>
                     </div>
