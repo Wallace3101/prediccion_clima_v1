@@ -2,7 +2,7 @@
     <div class="section-hero-wrapper">
         <div class="map-section relative overflow-hidden min-h-[500px]">
             <section id="weather-map"
-                class="relative py-24 bg-gradient-to-br from-teal-50/40 via-emerald-50/60 to-cyan-50/50 overflow-hidden">
+                class="relative py-6 overflow-hidden">
                 <!-- Fondo mejorado con efectos glassmorphism -->
                 <div class="absolute inset-0 enhanced-gradient"></div>
 
@@ -24,12 +24,12 @@
 
                 <div class="container mx-auto px-4 py-2 relative z-10">
                     <!-- Header mejorado con efectos -->
-                    <div ref="titleRef" class="text-center mb-12 animate-on-scroll">
+                    <div ref="titleRef" class="text-center mb-2 animate-on-scroll">
                         <div class="inline-block relative">
-                            <h2 class="section-title">
+                            <h2 class="section-title mb-0">
                             <SplitText
-                                text="Hello, GSAP!"
-                                class-name="text-3xl font-semibold text-center"
+                                text="ClimaMapa Huánuco"
+                                class-name="text-3xl font-semibold text-center leading-tight"
                                 :delay="100"
                                 :duration="0.6"
                                 ease="power3.out"
@@ -41,20 +41,30 @@
                                 text-align="center"
                                 @animation-complete="handleAnimationComplete"
                               />
-                                <br>
-                                <span class="text-primary">Clima en el Mapa</span>
                             </h2>
+                            <p class="text-primary text-lg mt-0 mb-0 leading-tight">Tu pronóstico interactivo del clima</p>
                             <!-- Elemento decorativo detrás del título -->
                             <div class="absolute -top-4 -left-4 w-full h-full blur-sm -z-10"></div>
                         </div>
-                        <p class="section-subtitle">
-                            Descubre el clima en diferentes ubicaciones de tu región.
-                            Haz clic en en cualquier lugar para ver información detallada del clima.
-                        </p>
+                        <div class="flex items-center justify-center gap-2 flex-wrap mt-1">
+                        <p class="text-sm text-slate-400 mb-0">👆 Haz clic en el mapa para ver el clima en cualquier punto</p>
+                        <RotatingText
+                        :texts="['Soleado', 'Lluvioso', 'Nublado', 'Templado', 'Fresco', 'Variado']"
+                        mainClassName="px-3 bg-gradient-to-r from-emerald-400 to-teal-500 text-white font-semibold overflow-hidden py-1 justify-center rounded-lg inline-flex shadow-lg"
+                        staggerFrom="last"
+                        :initial="{ y: '100%' }"
+                        :animate="{ y: 0 }"
+                        :exit="{ y: '-120%' }"
+                        :staggerDuration="0.025"
+                        splitLevelClassName="overflow-hidden pb-0.5"
+                        :transition="{ type: 'spring', damping: 30, stiffness: 400 }"
+                        :rotationInterval="4000"
+                        />
+                        </div>
                     </div>
 
                     <!-- Barra de búsqueda mejorada -->
-                    <div ref="searchRef" class="search-container max-w-[650px] mx-auto mb-8 animate-on-scroll">
+                    <div ref="searchRef" class="search-container max-w-[650px] mx-auto mb-4 animate-on-scroll">
                         <div class="search-enhanced rounded-2xl p-1 transition-all duration-300 hover:shadow-xl group">
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
@@ -325,6 +335,7 @@ import 'leaflet/dist/leaflet.css';
 // import weatherService from '@/services/weatherService'; // Descomentar cuando conectes con el backend
 import { useScrollAnimation } from '@/composables/useScrollAnimation';
 import SplitText from "../SplitText.vue";
+import RotatingText from "../RotatingText.vue";
 
 const handleAnimationComplete = () => {
     console.log('All letters have animated!');
@@ -944,12 +955,8 @@ onMounted(async () => {
 <style scoped>
 /* Gradiente de fondo mejorado */
 .enhanced-gradient {
-    background: linear-gradient(135deg,
-            rgb(248, 250, 252) 0%,
-            rgba(16, 185, 129, 0.08) 25%,
-            rgba(20, 184, 166, 0.12) 50%,
-            rgba(16, 185, 129, 0.06) 75%,
-            rgb(248, 250, 252) 100%);
+    /* removed decorative gradient so the section inherits the dark background */
+    background: transparent;
 }
 
 /* Animaciones flotantes */
@@ -1069,7 +1076,8 @@ onMounted(async () => {
 .section-hero-wrapper {
     position: relative;
     overflow: visible;
-    background: linear-gradient(180deg, rgba(16, 185, 129, 0.02) 0%, rgba(255, 255, 255, 0.0) 60%);
+    /* inherit background from parent (LandingPage) */
+    background: transparent;
 }
 
 .section-divider {
@@ -1103,10 +1111,7 @@ onMounted(async () => {
     bottom: 0;
     border-radius: 1.5rem;
     padding: 2px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(16, 185, 129, 0.1));
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: xor;
-    -webkit-mask-composite: xor;
+    background: transparent; /* Let parent background show through */
     pointer-events: none;
     z-index: 1;
 }
