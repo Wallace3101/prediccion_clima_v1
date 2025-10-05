@@ -244,6 +244,24 @@
                                 <span class="text-sm font-medium text-slate-700">Filtros activos</span>
                             </div>
                         </div>
+                        <!-- Panel para mostrar la selección por click -->
+                        <div v-if="selectedLocation" class="selected-location-panel absolute left-6 bottom-6 z-30">
+                            <div class="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-lg max-w-md">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="flex-1">
+                                        <div class="text-sm text-slate-600 mb-1">Ubicación seleccionada</div>
+                                        <div class="font-semibold text-slate-800 text-sm">
+                                            {{ selectedLocation.displayName }}
+                                        </div>
+                                        <div v-if="selectedLocation.loading" class="text-xs text-slate-500 mt-1">Obteniendo datos...</div>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-2">
+                                        <button @click="clearSelection" class="px-3 py-1 text-sm bg-gray-100 rounded">Limpiar</button>
+                                        <button @click="confirmSelection" class="px-3 py-1 text-sm bg-emerald-600 text-white rounded">Confirmar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -317,22 +335,24 @@ const { elementRef: titleRef } = useScrollAnimation();
 const { elementRef: searchRef } = useScrollAnimation();
 const { elementRef: mapRef } = useScrollAnimation();
 
-// Referencias reactivas
-const mapContainer = ref(null);
-const loading = ref(true);
-const locations = ref([]); // Cambiado de sucursales a locations
-const map = ref(null);
-const markersLayer = ref(null);
-const userLocationMarker = ref(null);
-const userLocation = ref(null);
-const showingUserLocation = ref(false);
-const searchQuery = ref('');
-const nearestModalVisible = ref(false);
-const nearestLocation = ref(null); // Cambiado de nearestSucursal a nearestLocation
-const mapInitialized = ref(false);
-const isUpdatingMarkers = ref(false);
-const isSecureContext = ref(window.isSecureContext || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
-const legendMinimized = ref(true);
+// Referencias reactivas (tipadas para TypeScript)
+const mapContainer = ref<HTMLElement | null>(null);
+const loading = ref<boolean>(true);
+const locations = ref<Array<any>>([]); // Cambiado de sucursales a locations
+const map = ref<any | null>(null);
+const markersLayer = ref<any | null>(null);
+const userLocationMarker = ref<any | null>(null);
+const userLocation = ref<{ lat: number; lng: number } | null>(null);
+const showingUserLocation = ref<boolean>(false);
+const selectedLocation = ref<any | null>(null);
+const clickMarker = ref<any | null>(null);
+const searchQuery = ref<string>('');
+const nearestModalVisible = ref<boolean>(false);
+const nearestLocation = ref<any | null>(null); // Cambiado de nearestSucursal a nearestLocation
+const mapInitialized = ref<boolean>(false);
+const isUpdatingMarkers = ref<boolean>(false);
+const isSecureContext = ref<boolean>(window.isSecureContext || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+const legendMinimized = ref<boolean>(true);
 
 // Configuración del mapa centrado en Huánuco (puedes cambiar las coordenadas)
 const mapConfig = {
@@ -457,9 +477,11 @@ const initMap = () => {
 
         markersLayer.value = L.layerGroup().addTo(map.value);
 
-        map.value.whenReady(() => {
+        map.value!.whenReady(() => {
             mapInitialized.value = true;
             updateMarkers();
+            // Agregar listener de click para seleccionar ubicación
+            map.value!.on('click', onMapClick)
             loading.value = false;
         });
 
@@ -484,7 +506,7 @@ const createCustomIcon = (condicion = 'Soleado', temperatura = 20) => {
     };
 
     // Colores según la temperatura
-    const getColorByTemp = (temp) => {
+    const getColorByTemp = (temp: number) => {
         if (temp >= 28) return '#ef4444'; // Rojo - Caliente
         if (temp >= 22) return '#f59e0b'; // Naranja - Templado-Cálido
         if (temp >= 18) return '#10b981'; // Verde - Agradable
@@ -492,7 +514,7 @@ const createCustomIcon = (condicion = 'Soleado', temperatura = 20) => {
         return '#8b5cf6'; // Púrpura - Frío
     };
 
-    const icon = weatherIcons[condicion] || '🌡️';
+    const icon = (weatherIcons as any)[condicion] || '🌡️';
     const color = getColorByTemp(temperatura);
 
     return L.divIcon({
@@ -516,7 +538,7 @@ const updateMarkers = () => {
 
     try {
         isUpdatingMarkers.value = true;
-        markersLayer.value.clearLayers();
+    markersLayer.value?.clearLayers();
 
         const locationsToShow = searchQuery.value.trim() === ''
             ? locations.value
@@ -535,7 +557,7 @@ const updateMarkers = () => {
                     }).bindPopup(createPopupContent(location));
 
                     marker.locationId = location.id;
-                    markersLayer.value.addLayer(marker);
+                    markersLayer.value?.addLayer(marker);
                 } catch (error) {
                     console.error('Error creando marcador:', error);
                 }
@@ -550,7 +572,7 @@ const updateMarkers = () => {
 };
 
 // Crear contenido del popup mejorado con información del clima
-const createPopupContent = (location) => {
+    const createPopupContent = (location: any) => {
     const descripcion = location.descripcion || 'Ubicación';
     const temperatura = location.temperatura || 'N/A';
     const humedad = location.humedad || 'N/A';
@@ -568,7 +590,7 @@ const createPopupContent = (location) => {
         'Viento': '💨',
     };
     
-    const iconoCondicion = condicionIconos[condicion] || '🌡️';
+    const iconoCondicion = (condicionIconos as any)[condicion] || '🌡️';
 
     return `
     <div class="popup-content-enhanced">
@@ -598,7 +620,7 @@ const createPopupContent = (location) => {
 };
 
 // Enfocar en una ubicación específica
-const focusOnLocation = (location) => {
+const focusOnLocation = (location: any) => {
     if (!map.value || !mapInitialized.value || !location.latitud || !location.longitud) {
         return;
     }
@@ -613,8 +635,8 @@ const focusOnLocation = (location) => {
             });
 
             setTimeout(() => {
-                if (markersLayer.value) {
-                    markersLayer.value.eachLayer((layer) => {
+                if (markersLayer.value?.eachLayer) {
+                    markersLayer.value.eachLayer((layer: any) => {
                         if (layer.locationId === location.id) {
                             layer.openPopup();
                         }
@@ -633,8 +655,8 @@ const centerAllLocations = () => {
     }
 
     try {
-        const layers = [];
-        markersLayer.value.eachLayer((layer) => {
+        const layers: any[] = [];
+        markersLayer.value?.eachLayer((layer: any) => {
             layers.push(layer);
         });
 
@@ -642,25 +664,25 @@ const centerAllLocations = () => {
             const group = L.featureGroup(layers);
             const bounds = group.getBounds();
 
-            if (bounds && bounds.isValid()) {
-                map.value.flyToBounds(bounds, {
+                if (bounds && bounds.isValid()) {
+                map.value?.flyToBounds(bounds, {
                     padding: [50, 50],
                     maxZoom: 14,
                     duration: 1.5
                 });
             }
         } else {
-            map.value.flyTo(mapConfig.center, mapConfig.zoom, {
+            map.value?.flyTo(mapConfig.center, mapConfig.zoom, {
                 duration: 1.5
             });
         }
     } catch (error) {
         console.error('Error centrando todas las ubicaciones:', error);
-        map.value.setView(mapConfig.center, mapConfig.zoom);
+    map.value?.setView(mapConfig.center, mapConfig.zoom);
     }
 };
 
-const getUserLocation = () => {
+const getUserLocation = (): Promise<{ lat: number; lng: number }> => {
     const isSecureContext = window.isSecureContext || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
     if (!navigator.geolocation) {
@@ -681,7 +703,7 @@ const getUserLocation = () => {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords
-                resolve({ lat: latitude, lng: longitude })
+                resolve({ lat: latitude, lng: longitude } as { lat: number; lng: number })
             },
             (error) => {
                 let errorMessage = 'Error obteniendo ubicación';
@@ -715,10 +737,10 @@ const showUserLocation = async () => {
 
     try {
         showingUserLocation.value = true
-        const location = await getUserLocation()
-        userLocation.value = location
+    const location = await getUserLocation()
+    userLocation.value = location as { lat: number; lng: number }
 
-        if (userLocationMarker.value && map.value.hasLayer(userLocationMarker.value)) {
+        if (userLocationMarker.value && map.value?.hasLayer && map.value.hasLayer(userLocationMarker.value)) {
             map.value.removeLayer(userLocationMarker.value)
         }
 
@@ -736,16 +758,16 @@ const showUserLocation = async () => {
         })
 
         userLocationMarker.value = L.marker([location.lat, location.lng], { icon: userIcon })
-            .addTo(map.value)
+            .addTo(map.value!)
             .bindPopup('📍 Tu ubicación actual')
 
-        map.value.flyTo([location.lat, location.lng], 15, {
+        map.value!.flyTo([location.lat, location.lng], 15, {
             duration: 1.5
         });
 
         // console.log('✅ Ubicación obtenida correctamente');
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error mostrando ubicación del usuario:', error.message)
         alert(`Error de ubicación: ${error.message}`);
     } finally {
@@ -753,7 +775,79 @@ const showUserLocation = async () => {
     }
 }
 
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
+// Manejo de click en el mapa: crear marcador y reverse-geocode
+const onMapClick = async (e: any) => {
+    try {
+        const { lat, lng } = e.latlng
+
+        // remover marcador anterior
+        if (clickMarker.value && map.value && map.value.hasLayer(clickMarker.value)) {
+            map.value.removeLayer(clickMarker.value)
+            clickMarker.value = null
+        }
+
+        // crear nuevo marcador
+        clickMarker.value = L.marker([lat, lng]).addTo(map.value)
+
+        // mostrar estado provisional
+        selectedLocation.value = {
+            lat,
+            lon: lng,
+            displayName: 'Obteniendo dirección...',
+            loading: true
+        }
+
+        // reverse geocoding con Nominatim
+        const info = await reverseGeocode(lat, lng)
+
+        selectedLocation.value = {
+            lat,
+            lon: lng,
+            displayName: info.display_name || 'Dirección no disponible',
+            address: info.address || null,
+            loading: false
+        }
+
+        // abrir popup con la dirección
+        if (clickMarker.value) {
+            clickMarker.value.bindPopup(`<strong>Seleccionado</strong><br>${selectedLocation.value.displayName}`).openPopup()
+        }
+
+    } catch (error) {
+        console.error('Error al procesar click en mapa:', error)
+        selectedLocation.value = null
+    }
+}
+
+const reverseGeocode = async (lat: number, lon: number) => {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`
+    try {
+        const res = await fetch(url, { headers: { 'User-Agent': 'clima_frontend/1.0' } })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data = await res.json()
+        return data
+    } catch (error) {
+        console.warn('reverseGeocode failed:', error)
+        return {}
+    }
+}
+
+const clearSelection = () => {
+    if (clickMarker.value && map.value && map.value.hasLayer(clickMarker.value)) {
+        map.value.removeLayer(clickMarker.value)
+    }
+    clickMarker.value = null
+    selectedLocation.value = null
+}
+
+const confirmSelection = () => {
+    if (!selectedLocation.value) return
+    // Por ahora solo mostrar en consola; más adelante emitir evento o integrar con backend
+    console.log('Ubicación confirmada:', selectedLocation.value)
+    // posible emit: emit('locationSelected', selectedLocation.value)
+}
+
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371
     const dLat = (lat2 - lat1) * Math.PI / 180
     const dLon = (lon2 - lon1) * Math.PI / 180
@@ -770,11 +864,11 @@ const findNearestLocation = () => {
     let nearest = null
     let minDistance = Infinity
 
-    locations.value.forEach(location => {
+    locations.value.forEach((location: any) => {
         if (location.latitud && location.longitud) {
             const distance = calculateDistance(
-                userLocation.value.lat,
-                userLocation.value.lng,
+                userLocation.value!.lat,
+                userLocation.value!.lng,
                 parseFloat(location.latitud),
                 parseFloat(location.longitud)
             )
@@ -811,7 +905,7 @@ const findAndShowNearest = () => {
 }
 
 // Watch para actualizar marcadores cuando cambia la búsqueda
-let searchTimeout = null;
+let searchTimeout: number | null = null;
 watch(searchQuery, () => {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
