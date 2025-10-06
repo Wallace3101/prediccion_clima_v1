@@ -22,7 +22,7 @@
       </div>
       <div class="flex-1">
         <p class="text-xl sm:text-2xl font-semibold m-0 mb-1 sm:mb-2 text-white">{{ weatherCondition }}</p>
-        <p class="text-sm sm:text-base text-slate-400 m-0">Sensación térmica: {{ feelsLike }}°</p>
+        <p class="text-sm sm:text-base text-slate-400 m-0">{{ t('weather.panel.feelsLike') }}: {{ feelsLike }}°</p>
       </div>
     </div>
 
@@ -31,7 +31,7 @@
       <div class="metric-card flex items-center gap-1.5 sm:gap-2 md:gap-3 p-2.5 sm:p-3 md:p-4 bg-white/5 rounded-lg sm:rounded-xl border border-white/10 transition-all duration-300 overflow-hidden">
         <div class="text-xl sm:text-2xl md:text-3xl bg-white/10 p-1.5 sm:p-2 md:p-2.5 rounded-md sm:rounded-lg flex-shrink-0">💨</div>
         <div class="flex-1 min-w-0 overflow-hidden">
-          <p class="text-[10px] sm:text-xs text-slate-400 m-0 mb-0.5 leading-tight">Viento</p>
+          <p class="text-[10px] sm:text-xs text-slate-400 m-0 mb-0.5 leading-tight">{{ t('weather.panel.wind') }}</p>
           <p class="text-sm sm:text-base md:text-lg font-semibold text-white m-0 truncate leading-tight">{{ wind }} km/h</p>
         </div>
       </div>
@@ -39,7 +39,7 @@
       <div class="metric-card flex items-center gap-1.5 sm:gap-2 md:gap-3 p-2.5 sm:p-3 md:p-4 bg-white/5 rounded-lg sm:rounded-xl border border-white/10 transition-all duration-300 overflow-hidden">
         <div class="text-xl sm:text-2xl md:text-3xl bg-white/10 p-1.5 sm:p-2 md:p-2.5 rounded-md sm:rounded-lg flex-shrink-0">💧</div>
         <div class="flex-1 min-w-0 overflow-hidden">
-          <p class="text-[10px] sm:text-xs text-slate-400 m-0 mb-0.5 leading-tight">Humedad</p>
+          <p class="text-[10px] sm:text-xs text-slate-400 m-0 mb-0.5 leading-tight">{{ t('weather.panel.humidity') }}</p>
           <p class="text-sm sm:text-base md:text-lg font-semibold text-white m-0 truncate leading-tight">{{ humidity }}%</p>
         </div>
       </div>
@@ -47,7 +47,7 @@
       <div class="metric-card flex items-center gap-1.5 sm:gap-2 md:gap-3 p-2.5 sm:p-3 md:p-4 bg-white/5 rounded-lg sm:rounded-xl border border-white/10 transition-all duration-300 overflow-hidden">
         <div class="text-xl sm:text-2xl md:text-3xl bg-white/10 p-1.5 sm:p-2 md:p-2.5 rounded-md sm:rounded-lg flex-shrink-0">🌡️</div>
         <div class="flex-1 min-w-0 overflow-hidden">
-          <p class="text-[10px] sm:text-xs text-slate-400 m-0 mb-0.5 leading-tight">Presión</p>
+          <p class="text-[10px] sm:text-xs text-slate-400 m-0 mb-0.5 leading-tight">{{ t('weather.panel.pressure') }}</p>
           <p class="text-sm sm:text-base md:text-lg font-semibold text-white m-0 truncate leading-tight">{{ pressure }} hPa</p>
         </div>
       </div>
@@ -55,7 +55,7 @@
       <div class="metric-card flex items-center gap-1.5 sm:gap-2 md:gap-3 p-2.5 sm:p-3 md:p-4 bg-white/5 rounded-lg sm:rounded-xl border border-white/10 transition-all duration-300 overflow-hidden">
         <div class="text-xl sm:text-2xl md:text-3xl bg-white/10 p-1.5 sm:p-2 md:p-2.5 rounded-md sm:rounded-lg flex-shrink-0">☀️</div>
         <div class="flex-1 min-w-0 overflow-hidden">
-          <p class="text-[10px] sm:text-xs text-slate-400 m-0 mb-0.5 leading-tight whitespace-nowrap overflow-hidden text-ellipsis">Radiación UV</p>
+          <p class="text-[10px] sm:text-xs text-slate-400 m-0 mb-0.5 leading-tight whitespace-nowrap overflow-hidden text-ellipsis">{{ t('weather.panel.uvRadiation') }}</p>
           <p class="text-sm sm:text-base md:text-lg font-semibold text-white m-0 truncate leading-tight">{{ uvIndex }}</p>
         </div>
       </div>
@@ -63,7 +63,7 @@
 
     <!-- Pronóstico semanal -->
     <div class="mb-8">
-      <h3 class="text-xl font-semibold text-white m-0 mb-5">Pronóstico Semanal</h3>
+      <h3 class="text-xl font-semibold text-white m-0 mb-5">{{ t('weather.panel.weeklyForecast') }}</h3>
       
       <!-- Vista Desktop (grid) -->
       <div class="hidden lg:grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3">
@@ -145,7 +145,7 @@
 
     <!-- Gráfico de temperatura (Chart.js) -->
     <div class="mb-6 sm:mb-8">
-      <h3 class="text-lg sm:text-xl font-semibold text-white m-0 mb-4 sm:mb-5">Temperatura por Hora</h3>
+      <h3 class="text-lg sm:text-xl font-semibold text-white m-0 mb-4 sm:mb-5">{{ t('weather.panel.hourlyTemperature') }}</h3>
       <div class="bg-white/[0.03] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 h-[250px] sm:h-[300px]">
         <Line :data="chartData" :options="chartOptions" />
       </div>
@@ -153,7 +153,7 @@
 
     <!-- Gráfico de lluvia -->
     <div class="mb-6 sm:mb-8">
-      <h3 class="text-lg sm:text-xl font-semibold text-white m-0 mb-4 sm:mb-5">Lluvia (mm)</h3>
+      <h3 class="text-lg sm:text-xl font-semibold text-white m-0 mb-4 sm:mb-5">{{ t('weather.panel.rain') }} (mm)</h3>
       <div class="bg-white/[0.03] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 h-[250px] sm:h-[300px]">
         <Bar :data="rainChartData" :options="rainChartOptions" />
       </div>
@@ -162,15 +162,15 @@
     <!-- Información adicional -->
     <div class="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
       <div class="info-row flex justify-between py-2 sm:py-3 border-b border-white/10">
-        <span class="text-sm sm:text-base text-slate-400">☀️ Salida del sol:</span>
+        <span class="text-sm sm:text-base text-slate-400">☀️ {{ t('weather.panel.sunrise') }}:</span>
         <span class="text-sm sm:text-base font-semibold text-white">{{ sunrise }}</span>
       </div>
       <div class="info-row flex justify-between py-2 sm:py-3 border-b border-white/10">
-        <span class="text-sm sm:text-base text-slate-400">🌙 Puesta del sol:</span>
+        <span class="text-sm sm:text-base text-slate-400">🌙 {{ t('weather.panel.sunset') }}:</span>
         <span class="text-sm sm:text-base font-semibold text-white">{{ sunset }}</span>
       </div>
       <div class="flex justify-between py-2 sm:py-3">
-        <span class="text-sm sm:text-base text-slate-400">☁️ Nubosidad:</span>
+        <span class="text-sm sm:text-base text-slate-400">☁️ {{ t('weather.panel.cloudCover') }}:</span>
         <span class="text-sm sm:text-base font-semibold text-white">{{ cloudiness }}%</span>
       </div>
     </div>
@@ -179,6 +179,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Line, Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -193,6 +194,8 @@ import {
   Filler
 } from 'chart.js'
 import openWeatherService from '../../services/openWeatherService.js'
+
+const { t } = useI18n()
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -229,7 +232,7 @@ const weatherIcon = ref('🌤️')
 const wind = ref('2')
 const humidity = ref('79')
 const pressure = ref('1018')
-const uvIndex = ref('Baja')
+const uvIndex = ref(t('weather.uvLevels.low'))
 const cloudiness = ref('14')
 const sunrise = ref('05:45')
 const sunset = ref('18:01')
@@ -262,9 +265,8 @@ watch(() => props.weatherData?.current, (newCurrent) => {
     sunrise.value = newCurrent.sunrise || 'N/A'
     sunset.value = newCurrent.sunset || 'N/A'
     
-    // UV Index - por ahora "Baja" ya que el API básico no lo incluye
-    uvIndex.value = 'Baja'
-    
+      // UV Index - por ahora "Baja/Low" ya que el API básico no lo incluye
+      uvIndex.value = t('weather.uvLevels.low')
     console.log('✅ WeatherPanel: Datos actualizados correctamente')
   }
 }, { immediate: true, deep: true })
@@ -291,8 +293,29 @@ watch(() => props.selectedLocation, (newLocation) => {
   if (newLocation) {
     // Actualizar con la fecha actual
     const now = new Date()
-    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    const dias = [
+      t('weather.days.sunday'),
+      t('weather.days.monday'),
+      t('weather.days.tuesday'),
+      t('weather.days.wednesday'),
+      t('weather.days.thursday'),
+      t('weather.days.friday'),
+      t('weather.days.saturday')
+    ]
+    const meses = [
+      t('weather.months.january'),
+      t('weather.months.february'),
+      t('weather.months.march'),
+      t('weather.months.april'),
+      t('weather.months.may'),
+      t('weather.months.june'),
+      t('weather.months.july'),
+      t('weather.months.august'),
+      t('weather.months.september'),
+      t('weather.months.october'),
+      t('weather.months.november'),
+      t('weather.months.december')
+    ]
     
     currentDate.value = `${dias[now.getDay()]}, ${now.getDate()} de ${meses[now.getMonth()]} ${now.getFullYear()}`
   }
@@ -416,7 +439,15 @@ const chartOptions = ref({
 
 // Datos para el gráfico de lluvia
 const rainChartData = computed(() => ({
-  labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+  labels: [
+    t('weather.days.mondayShort'),
+    t('weather.days.tuesdayShort'),
+    t('weather.days.wednesdayShort'),
+    t('weather.days.thursdayShort'),
+    t('weather.days.fridayShort'),
+    t('weather.days.saturdayShort'),
+    t('weather.days.sundayShort')
+  ],
   datasets: [
     {
       label: 'Lluvia (mm)',

@@ -1,0 +1,133 @@
+{
+  "common": {
+    "language": "Idioma",
+    "spanish": "Español",
+    "english": "English"
+  },
+  "chatbot": {
+    "title": "Asistente Climático",
+    "status": "En desarrollo",
+    "greeting": "¡Hola! 👋 Soy tu asistente climático inteligente.",
+    "developmentMessage": "Actualmente estoy en proceso de desarrollo, pero pronto podré ayudarte con:",
+    "features": {
+      "forecasts": "Pronósticos del tiempo detallados",
+      "analysis": "Análisis de tendencias climáticas",
+      "alerts": "Alertas meteorológicas",
+      "locations": "Información de ubicaciones específicas"
+    },
+    "placeholder": "Escribe tu pregunta sobre el clima...",
+    "developmentNotice": "🚧 Chatbot en desarrollo - Próximamente disponible",
+    "autoResponse": "Gracias por tu interés. Actualmente estoy en desarrollo y pronto podré responder todas tus consultas sobre el clima. ¡Mantente atento! 🌤️",
+    "aria": {
+      "openChat": "Abrir asistente del clima",
+      "closeChat": "Cerrar chat",
+      "sendMessage": "Enviar mensaje"
+    }
+  },
+  "weather": {
+    "panel": {
+      "location": "Ubicación",
+      "feelsLike": "Sensación térmica",
+      "wind": "Viento",
+      "humidity": "Humedad",
+      "pressure": "Presión",
+      "uvRadiation": "Radiación UV",
+      "weeklyForecast": "Pronóstico Semanal",
+      "hourlyTemperature": "Temperatura por Hora",
+      "sunrise": "Salida del sol",
+      "sunset": "Puesta del sol",
+      "visibility": "Visibilidad",
+      "cloudCover": "Nubosidad",
+      "precipitation": "Precipitación",
+      "dewPoint": "Punto de rocío",
+      "rain": "Lluvia"
+    },
+    "conditions": {
+      "clear": "Despejado",
+      "clouds": "Nublado",
+      "rain": "Lluvia",
+      "drizzle": "Llovizna",
+      "thunderstorm": "Tormenta",
+      "snow": "Nieve",
+      "mist": "Niebla",
+      "fog": "Neblina",
+      "smoke": "Humo",
+      "haze": "Bruma",
+      "dust": "Polvo",
+      "sand": "Arena",
+      "ash": "Ceniza",
+      "squall": "Turbonada",
+      "tornado": "Tornado"
+    },
+    "days": {
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado",
+      "sunday": "Domingo",
+      "mondayShort": "Lun",
+      "tuesdayShort": "Mar",
+      "wednesdayShort": "Mié",
+      "thursdayShort": "Jue",
+      "fridayShort": "Vie",
+      "saturdayShort": "Sáb",
+      "sundayShort": "Dom",
+      "today": "Hoy",
+      "tomorrow": "Mañana"
+    },
+    "months": {
+      "january": "Enero",
+      "february": "Febrero",
+      "march": "Marzo",
+      "april": "Abril",
+      "may": "Mayo",
+      "june": "Junio",
+      "july": "Julio",
+      "august": "Agosto",
+      "september": "Septiembre",
+      "october": "Octubre",
+      "november": "Noviembre",
+      "december": "Diciembre"
+    },
+    "uvLevels": {
+      "low": "Baja",
+      "moderate": "Moderada",
+      "high": "Alta",
+      "veryHigh": "Muy Alta",
+      "extreme": "Extrema"
+    },
+    "units": {
+      "celsius": "°C",
+      "fahrenheit": "°F",
+      "kmh": "km/h",
+      "mph": "mph",
+      "hpa": "hPa",
+      "percentage": "%",
+      "km": "km",
+      "meters": "m"
+    }
+  },
+  "map": {
+    "title": "ClimateMap",
+    "subtitle": "Tu pronóstico interactivo del clima",
+    "clickInstruction": "Haz clic en el mapa para ver el clima en cualquier punto",
+    "searchPlaceholder": "Buscar ciudad en el mundo (ej: Lima, Bogotá, París...)",
+    "loading": "Cargando datos del clima...",
+    "error": "Error al cargar los datos",
+    "noResults": "No se encontraron resultados",
+    "currentLocation": "Mi ubicación",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "confirmLocation": "Confirmar ubicación",
+    "clearSelection": "Limpiar",
+    "rotatingWords": ["Soleado", "Lluvioso", "Nublado", "Templado", "Fresco", "Variado"]
+  },
+  "errors": {
+    "locationNotFound": "Ubicación no encontrada",
+    "weatherDataUnavailable": "Datos del clima no disponibles",
+    "networkError": "Error de conexión",
+    "tryAgain": "Intentar de nuevo"
+  }
+}
