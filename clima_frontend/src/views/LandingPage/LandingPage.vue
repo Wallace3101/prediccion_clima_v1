@@ -44,6 +44,9 @@
                 </div>
             </transition>
     </div>
+
+        <!-- Chatbot flotante -->
+        <WeatherChatbot />
     </div>
 </template>
 
@@ -52,6 +55,7 @@ import { ref, computed } from 'vue'
 import OpenStreetMap from './OpenStreetMap.vue'
 import WeatherPanel from './WeatherPanel.vue'
 import DarkVeil from '../DarkVeil.vue'
+import WeatherChatbot from '../../components/WeatherChatbot.vue'
 
 // Estado para almacenar los datos del clima
 const weatherData = ref<any>(null)
