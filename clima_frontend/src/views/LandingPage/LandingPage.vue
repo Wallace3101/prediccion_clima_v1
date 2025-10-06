@@ -11,6 +11,20 @@
             :warp-amount="0"
             :resolution-scale="1"
         />
+        
+        <!-- Logo NASA en la esquina superior izquierda -->
+        <div class="nasa-logo-header">
+            <a href="https://www.nasa.gov/" target="_blank" rel="noopener noreferrer" class="nasa-logo-link">
+                <div class="nasa-logo-container">
+                    <img 
+                        src="/logo_nasa.png" 
+                        alt="NASA Logo" 
+                        class="nasa-logo-img"
+                    />
+                </div>
+            </a>
+        </div>
+        
         <div class="landing-container">
             <!-- Componente del mapa -->
             <div class="map-wrapper">
@@ -143,6 +157,85 @@ const handleLocationSelected = (location: any) => {
 @media (max-width: 768px) {
     .weather-panel-wrapper {
         padding: 0 16px 32px 16px;
+    }
+}
+
+/* Logo NASA en header */
+.nasa-logo-header {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 1000;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.nasa-logo-link {
+    display: block;
+    text-decoration: none;
+}
+
+.nasa-logo-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 16px 20px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(16, 185, 129, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.nasa-logo-container:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.18),
+        0 4px 12px rgba(16, 185, 129, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.nasa-logo-img {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: all 0.3s ease;
+}
+
+.nasa-logo-container:hover .nasa-logo-img {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    transform: scale(1.02);
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive para móvil */
+@media (max-width: 768px) {
+    .nasa-logo-header {
+        top: 16px;
+        left: 16px;
+    }
+    
+    .nasa-logo-container {
+        padding: 12px 16px;
+        border-radius: 16px;
+    }
+    
+    .nasa-logo-img {
+        height: 36px;
     }
 }
 

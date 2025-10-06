@@ -132,6 +132,22 @@
 
                     <!-- Contenedor del mapa mejorado -->
                     <div ref="mapRef" class="map-container-enhanced relative animate-on-scroll">
+                        <!-- Indicador de carga del mapa -->
+                        <div v-if="loading" class="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-3xl">
+                            <div class="flex flex-col items-center gap-4">
+                                <div class="relative">
+                                    <div class="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-2xl">🗺️</span>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-lg font-semibold text-slate-800">Cargando mapa...</p>
+                                    <p class="text-sm text-slate-500 mt-1">Esto solo toma unos segundos</p>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!-- Mapa principal -->
                         <div ref="mapContainer" class="map-display h-[600px] w-full rounded-3xl overflow-hidden 
                         shadow-2xl border border-white/50 relative z-10"></div>
@@ -140,53 +156,39 @@
                         <div class="controls-panel absolute top-4 right-4 z-20 flex flex-col gap-2">
                             <!-- Botón de ubicación -->
                             <button @click="showUserLocation" :disabled="!isSecureContext || showingUserLocation"
-                                class="control-button location-btn group relative w-12 h-12 bg-white/90 backdrop-blur-sm hover:bg-white border border-slate-200 hover:border-emerald-300 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                <div class="control-tooltip">
-                                    {{ showingUserLocation ? 'Obteniendo ubicación...' : 'Mi ubicación' }}
-                                </div>
+                                class="control-button location-btn group relative w-12 h-12 bg-white/90 backdrop-blur-sm hover:bg-white border border-slate-200 hover:border-emerald-300 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                :title="showingUserLocation ? 'Obteniendo ubicación...' : 'Mi ubicación'">
                                 <div class="flex items-center justify-center">
                                     <svg v-if="!showingUserLocation"
                                         class="w-5 h-5 text-emerald-600 group-hover:text-emerald-700 transition-colors"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                        </path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
                                     </svg>
-                                    <div v-else
-                                        class="animate-spin w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full">
-                                    </div>
+                                    <div v-else class="animate-spin w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full"></div>
                                 </div>
                             </button>
 
                             <!-- Botón ubicación más cercana -->
                             <button v-if="userLocation" @click="findAndShowNearest"
-                                class="control-button nearest-btn group relative w-12 h-12 bg-white/90 backdrop-blur-sm hover:bg-white border border-slate-200 hover:border-emerald-300 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                <div class="control-tooltip">
-                                    Ubicación más cercana
-                                </div>
+                                class="control-button nearest-btn group relative w-12 h-12 bg-white/90 backdrop-blur-sm hover:bg-white border border-slate-200 hover:border-emerald-300 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                title="Ubicación más cercana">
                                 <div class="flex items-center justify-center">
                                     <svg class="w-5 h-5 text-emerald-600 group-hover:text-emerald-700 transition-colors"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                        fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"></path>
+                                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm0 14a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1z"></path>
                                     </svg>
                                 </div>
                             </button>
 
                             <!-- Botón ver todas -->
                             <button @click="centerAllLocations"
-                                class="control-button center-btn group relative w-12 h-12 bg-white/90 backdrop-blur-sm hover:bg-white border border-slate-200 hover:border-emerald-300 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                <div class="control-tooltip">
-                                    Ver todas las ubicaciones
-                                </div>
+                                class="control-button center-btn group relative w-12 h-12 bg-white/90 backdrop-blur-sm hover:bg-white border border-slate-200 hover:border-emerald-300 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                title="Ver todas las ubicaciones">
                                 <div class="flex items-center justify-center">
                                     <svg class="w-5 h-5 text-emerald-600 group-hover:text-emerald-700 transition-colors"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4">
-                                        </path>
+                                        fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
                                     </svg>
                                 </div>
                             </button>
@@ -441,43 +443,59 @@ const loadLocations = async () => {
     console.log('✅ Mapa listo - haz click para seleccionar una ubicación');
 };
 
-// Inicializar el mapa
+// Inicializar el mapa - ULTRA RÁPIDO
 const initMap = () => {
     if (!mapContainer.value) {
+        console.warn('⚠️ Contenedor del mapa no encontrado')
         return;
     }
 
     try {
+        console.log('🗺️ Creando mapa...')
+        
+        // Configuración minimalista para carga instantánea
         map.value = L.map(mapContainer.value, {
             center: mapConfig.center,
             zoom: mapConfig.zoom,
             zoomControl: true,
-            attributionControl: true,
-            zoomAnimation: true,
-            fadeAnimation: true,
-            markerZoomAnimation: true,
-            zoomAnimationThreshold: 4
+            attributionControl: false,  // Quitar atribución para más rápido
+            zoomAnimation: false,
+            fadeAnimation: false,
+            markerZoomAnimation: false,
+            preferCanvas: true,
+            trackResize: true
         });
-
+        
+        // Tiles con configuración ultra rápida
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: mapConfig.maxZoom,
-            minZoom: mapConfig.minZoom,
+            maxZoom: 19,
+            minZoom: 5,
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            keepBuffer: 2
         }).addTo(map.value);
 
+        // Layer de marcadores
         markersLayer.value = L.layerGroup().addTo(map.value);
 
-        map.value!.whenReady(() => {
-            mapInitialized.value = true;
-            updateMarkers();
-            // Agregar listener de click para seleccionar ubicación
-            map.value!.on('click', onMapClick)
-            loading.value = false;
-        });
+        // Listo instantáneamente
+        mapInitialized.value = true;
+        map.value.on('click', onMapClick);
+        
+        console.log('✅ Mapa listo')
+        
+        // Habilitar animaciones después
+        setTimeout(() => {
+            if (map.value) {
+                map.value.options.zoomAnimation = true;
+                map.value.options.fadeAnimation = true;
+                map.value.options.attributionControl = true;
+                console.log('✨ Animaciones activadas')
+            }
+        }, 800)
 
     } catch (error) {
-        console.error('Error inicializando mapa:', error);
-        loading.value = false;
+        console.error('❌ Error:', error);
     }
 };
 
@@ -1159,11 +1177,24 @@ onBeforeUnmount(() => {
     }
 });
 
-// Montar el componente
+// Montar el componente - ULTRA OPTIMIZADO
 onMounted(async () => {
-    await loadLocations();
-    await nextTick();
-    initMap();
+    console.log('🚀 Iniciando carga del mapa...')
+    
+    // Marcar como NO cargando inmediatamente para mostrar el mapa
+    loading.value = false
+    
+    // Cargar ubicaciones vacías (no bloquea)
+    loadLocations()
+    
+    // Esperar DOM
+    await nextTick()
+    
+    // Inicializar mapa de forma inmediata
+    requestAnimationFrame(() => {
+        initMap()
+        console.log('✅ Mapa inicializado en modo instantáneo')
+    })
 });
 </script>
 
@@ -1258,6 +1289,23 @@ onMounted(async () => {
         0 8px 32px rgba(0, 0, 0, 0.1),
         0 2px 8px rgba(0, 0, 0, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Logo NASA */
+.nasa-logo-container {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.nasa-logo-container:hover {
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        0 4px 12px rgba(16, 185, 129, 0.2);
+    transform: scale(1.05) translateY(-2px);
+}
+
+.nasa-logo-container img {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 /* Barra de búsqueda mejorada */
