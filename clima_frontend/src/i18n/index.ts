@@ -8,10 +8,11 @@ const getBrowserLanguage = () => {
   return ['es', 'en'].includes(browserLang) ? browserLang : 'en'
 }
 
-// Obtener idioma guardado en localStorage o usar el del navegador
+// Obtener idioma guardado en localStorage o usar inglés por defecto
+// Si no hay idioma guardado, siempre usa inglés (no detecta navegador)
 const getSavedLanguage = () => {
   const saved = localStorage.getItem('user-language')
-  return saved || getBrowserLanguage()
+  return saved || 'en' // Siempre inglés por defecto
 }
 
 const i18n = createI18n({
