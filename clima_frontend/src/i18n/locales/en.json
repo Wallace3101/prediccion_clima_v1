@@ -1,0 +1,133 @@
+{
+  "common": {
+    "language": "Language",
+    "spanish": "Español",
+    "english": "English"
+  },
+  "chatbot": {
+    "title": "Weather Assistant",
+    "status": "In development",
+    "greeting": "Hello! 👋 I'm your intelligent weather assistant.",
+    "developmentMessage": "I'm currently under development, but soon I'll be able to help you with:",
+    "features": {
+      "forecasts": "Detailed weather forecasts",
+      "analysis": "Climate trend analysis",
+      "alerts": "Weather alerts",
+      "locations": "Specific location information"
+    },
+    "placeholder": "Type your weather question...",
+    "developmentNotice": "🚧 Chatbot under development - Coming soon",
+    "autoResponse": "Thank you for your interest. I'm currently under development and will soon be able to answer all your weather questions. Stay tuned! 🌤️",
+    "aria": {
+      "openChat": "Open weather assistant",
+      "closeChat": "Close chat",
+      "sendMessage": "Send message"
+    }
+  },
+  "weather": {
+    "panel": {
+      "location": "Location",
+      "feelsLike": "Feels like",
+      "wind": "Wind",
+      "humidity": "Humidity",
+      "pressure": "Pressure",
+      "uvRadiation": "UV Radiation",
+      "weeklyForecast": "Weekly Forecast",
+      "hourlyTemperature": "Hourly Temperature",
+      "sunrise": "Sunrise",
+      "sunset": "Sunset",
+      "visibility": "Visibility",
+      "cloudCover": "Cloud Cover",
+      "precipitation": "Precipitation",
+      "dewPoint": "Dew Point",
+      "rain": "Rain"
+    },
+    "conditions": {
+      "clear": "Clear",
+      "clouds": "Cloudy",
+      "rain": "Rain",
+      "drizzle": "Drizzle",
+      "thunderstorm": "Thunderstorm",
+      "snow": "Snow",
+      "mist": "Mist",
+      "fog": "Fog",
+      "smoke": "Smoke",
+      "haze": "Haze",
+      "dust": "Dust",
+      "sand": "Sand",
+      "ash": "Ash",
+      "squall": "Squall",
+      "tornado": "Tornado"
+    },
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "mondayShort": "Mon",
+      "tuesdayShort": "Tue",
+      "wednesdayShort": "Wed",
+      "thursdayShort": "Thu",
+      "fridayShort": "Fri",
+      "saturdayShort": "Sat",
+      "sundayShort": "Sun",
+      "today": "Today",
+      "tomorrow": "Tomorrow"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "uvLevels": {
+      "low": "Low",
+      "moderate": "Moderate",
+      "high": "High",
+      "veryHigh": "Very High",
+      "extreme": "Extreme"
+    },
+    "units": {
+      "celsius": "°C",
+      "fahrenheit": "°F",
+      "kmh": "km/h",
+      "mph": "mph",
+      "hpa": "hPa",
+      "percentage": "%",
+      "km": "km",
+      "meters": "m"
+    }
+  },
+  "map": {
+    "title": "ClimateMap",
+    "subtitle": "Your interactive weather forecast",
+    "clickInstruction": "Click on the map to see the weather at any point",
+    "searchPlaceholder": "Search city worldwide (e.g., Lima, Bogotá, Paris...)",
+    "loading": "Loading weather data...",
+    "error": "Error loading data",
+    "noResults": "No results found",
+    "currentLocation": "My location",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "confirmLocation": "Confirm location",
+    "clearSelection": "Clear",
+    "rotatingWords": ["Sunny", "Rainy", "Cloudy", "Warm", "Cool", "Variable"]
+  },
+  "errors": {
+    "locationNotFound": "Location not found",
+    "weatherDataUnavailable": "Weather data unavailable",
+    "networkError": "Connection error",
+    "tryAgain": "Try again"
+  }
+}

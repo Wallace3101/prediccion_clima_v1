@@ -13,18 +13,24 @@
 const API_KEY = 'b557f60a8b08a6ad0e81560892e92aad';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
+// Función para obtener el idioma actual
+const getCurrentLanguage = () => {
+  return localStorage.getItem('user-language') || 'en';
+};
+
 const openWeatherService = {
   /**
    * Obtener clima actual por coordenadas
    * @param {number} lat - Latitud
    * @param {number} lon - Longitud
    * @param {string} units - Unidades de medida: 'metric' (Celsius), 'imperial' (Fahrenheit), 'standard' (Kelvin)
-   * @param {string} lang - Idioma de la respuesta (es para español)
+   * @param {string} lang - Idioma de la respuesta (es para español, en para inglés)
    * @returns {Promise<Object>} Datos del clima actual
    */
-  async getCurrentWeather(lat, lon, units = 'metric', lang = 'es') {
+  async getCurrentWeather(lat, lon, units = 'metric', lang = null) {
     try {
-      const url = `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${units}&lang=${lang}`;
+      const currentLang = lang || getCurrentLanguage();
+      const url = `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${units}&lang=${currentLang}`;
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -58,9 +64,10 @@ const openWeatherService = {
    * @param {string} lang - Idioma de la respuesta
    * @returns {Promise<Object>} Pronóstico del clima
    */
-  async getForecast(lat, lon, units = 'metric', lang = 'es') {
+  async getForecast(lat, lon, units = 'metric', lang = null) {
     try {
-      const url = `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${units}&lang=${lang}`;
+      const currentLang = lang || getCurrentLanguage();
+      const url = `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${units}&lang=${currentLang}`;
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -138,8 +145,8 @@ const openWeatherService = {
       description: weatherData.weather?.[0]?.description || 'N/A',
       icon: weatherData.weather?.[0]?.icon || '01d',
       weatherMain: weatherData.weather?.[0]?.main || 'Clear',
-      sunrise: weatherData.sys?.sunrise ? new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : 'N/A',
-      sunset: weatherData.sys?.sunset ? new Date(weatherData.sys.sunset * 1000).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : 'N/A',
+      sunrise: weatherData.sys?.sunrise ? new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString(getCurrentLanguage() === 'es' ? 'es-PE' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A',
+      sunset: weatherData.sys?.sunset ? new Date(weatherData.sys.sunset * 1000).toLocaleTimeString(getCurrentLanguage() === 'es' ? 'es-PE' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A',
       location: weatherData.name || 'Ubicación',
       country: weatherData.sys?.country || '',
       coordinates: {
@@ -159,10 +166,12 @@ const openWeatherService = {
 
     // Agrupar por día
     const dailyData = {};
+    const currentLang = getCurrentLanguage();
+    const locale = currentLang === 'es' ? 'es-PE' : 'en-US';
     
     forecastData.list.forEach(item => {
       const date = new Date(item.dt * 1000);
-      const day = date.toLocaleDateString('es-PE', { weekday: 'short' });
+      const day = date.toLocaleDateString(locale, { weekday: 'short' });
       const dateKey = date.toISOString().split('T')[0];
 
       if (!dailyData[dateKey]) {

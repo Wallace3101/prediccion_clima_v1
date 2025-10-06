@@ -42,14 +42,14 @@
                                 @animation-complete="handleAnimationComplete"
                               />
                             </h2>
-                            <p class="text-primary text-lg mt-0 mb-0 leading-tight">Tu pronóstico interactivo del clima</p>
+                            <p class="text-primary text-lg mt-0 mb-0 leading-tight">{{ t('map.subtitle') }}</p>
                             <!-- Elemento decorativo detrás del título -->
                             <div class="absolute -top-4 -left-4 w-full h-full blur-sm -z-10"></div>
                         </div>
                         <div class="flex items-center justify-center gap-2 flex-wrap mt-1">
-                        <p class="text-sm text-slate-400 mb-0">👆 Haz clic en el mapa para ver el clima en cualquier punto</p>
+                        <p class="text-sm text-slate-400 mb-0">👆 {{ t('map.clickInstruction') }}</p>
                         <RotatingText
-                        :texts="['Soleado', 'Lluvioso', 'Nublado', 'Templado', 'Fresco', 'Variado']"
+                        :texts="rotatingWords"
                         mainClassName="px-3 bg-gradient-to-r from-emerald-400 to-teal-500 text-white font-semibold overflow-hidden py-1 justify-center rounded-lg inline-flex shadow-lg"
                         staggerFrom="last"
                         :initial="{ y: '100%' }"
@@ -81,7 +81,7 @@
                                 <input 
                                     v-model="searchQuery" 
                                     type="text"
-                                    placeholder="Buscar ciudad en el mundo (ej: Lima, Bogotá, París...)" 
+                                    :placeholder="t('map.searchPlaceholder')" 
                                     class="w-full pl-12 pr-4 py-4 bg-transparent border-0 rounded-xl 
                                         text-slate-700 placeholder-slate-400
                                         focus:outline-none focus:ring-0 
@@ -308,8 +308,8 @@
                                         <div v-if="selectedLocation.loading" class="text-xs text-slate-500 mt-1">Obteniendo datos...</div>
                                     </div>
                                     <div class="flex flex-col items-end gap-2">
-                                        <button @click="clearSelection" class="px-3 py-1 text-sm bg-gray-100 rounded">Limpiar</button>
-                                        <button @click="confirmSelection" class="px-3 py-1 text-sm bg-emerald-600 text-white rounded">Confirmar</button>
+                                        <button @click="clearSelection" class="px-3 py-1 text-sm bg-gray-100 rounded">{{ t('map.clearSelection') }}</button>
+                                        <button @click="confirmSelection" class="px-3 py-1 text-sm bg-emerald-600 text-white rounded">{{ t('map.confirmLocation') }}</button>
                                     </div>
                                 </div>
                             </div>
@@ -371,6 +371,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick, watch, onBeforeUnmount } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { EnvironmentOutlined } from '@ant-design/icons-vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -379,6 +380,11 @@ import { useScrollAnimation } from '@/composables/useScrollAnimation';
 import SplitText from "../SplitText.vue";
 import RotatingText from "../RotatingText.vue";
 import openWeatherService from '../../services/openWeatherService.js';
+
+const { t, tm } = useI18n();
+
+// Palabras rotativas traducidas - usar tm() para acceder a arrays/objetos
+const rotatingWords = computed(() => tm('map.rotatingWords') as string[]);
 
 const handleAnimationComplete = () => {
     console.log('All letters have animated!');

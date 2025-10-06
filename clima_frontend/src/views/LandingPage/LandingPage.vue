@@ -45,6 +45,9 @@
             </transition>
     </div>
 
+        <!-- Selector de idioma -->
+        <LanguageSwitcher />
+
         <!-- Chatbot flotante -->
         <WeatherChatbot />
     </div>
@@ -56,6 +59,7 @@ import OpenStreetMap from './OpenStreetMap.vue'
 import WeatherPanel from './WeatherPanel.vue'
 import DarkVeil from '../DarkVeil.vue'
 import WeatherChatbot from '../../components/WeatherChatbot.vue'
+import LanguageSwitcher from '../../components/LanguageSwitcher.vue'
 
 // Estado para almacenar los datos del clima
 const weatherData = ref<any>(null)

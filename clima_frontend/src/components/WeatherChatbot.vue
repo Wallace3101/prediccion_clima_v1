@@ -6,7 +6,7 @@
         v-if="!isOpen"
         @click="toggleChat"
         class="chatbot-button"
-        aria-label="Abrir asistente del clima"
+        :aria-label="t('chatbot.aria.openChat')"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -23,14 +23,14 @@
           <div class="chat-header-info">
             <div class="status-indicator"></div>
             <div>
-              <h3 class="chat-title">Asistente Climático</h3>
-              <p class="chat-status">En desarrollo</p>
+              <h3 class="chat-title">{{ t('chatbot.title') }}</h3>
+              <p class="chat-status">{{ t('chatbot.status') }}</p>
             </div>
           </div>
           <button 
             @click="toggleChat" 
             class="close-button"
-            aria-label="Cerrar chat"
+            :aria-label="t('chatbot.aria.closeChat')"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -50,13 +50,13 @@
               </svg>
             </div>
             <div class="message-content">
-              <p>¡Hola! 👋 Soy tu asistente climático inteligente.</p>
-              <p class="message-small">Actualmente estoy en proceso de desarrollo, pero pronto podré ayudarte con:</p>
+              <p>{{ t('chatbot.greeting') }}</p>
+              <p class="message-small">{{ t('chatbot.developmentMessage') }}</p>
               <ul class="feature-list">
-                <li>🌤️ Pronósticos del tiempo detallados</li>
-                <li>📊 Análisis de tendencias climáticas</li>
-                <li>🌡️ Alertas meteorológicas</li>
-                <li>🗺️ Información de ubicaciones específicas</li>
+                <li>🌤️ {{ t('chatbot.features.forecasts') }}</li>
+                <li>📊 {{ t('chatbot.features.analysis') }}</li>
+                <li>🌡️ {{ t('chatbot.features.alerts') }}</li>
+                <li>🗺️ {{ t('chatbot.features.locations') }}</li>
               </ul>
             </div>
           </div>
@@ -105,7 +105,7 @@
               v-model="userInput"
               @keypress.enter="sendMessage"
               type="text" 
-              placeholder="Escribe tu pregunta sobre el clima..."
+              :placeholder="t('chatbot.placeholder')"
               class="chat-input"
               :disabled="true"
             />
@@ -113,7 +113,7 @@
               @click="sendMessage" 
               class="send-button"
               :disabled="!userInput.trim() || true"
-              aria-label="Enviar mensaje"
+              :aria-label="t('chatbot.aria.sendMessage')"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -122,7 +122,7 @@
             </button>
           </div>
           <p class="development-notice">
-            🚧 Chatbot en desarrollo - Próximamente disponible
+            {{ t('chatbot.developmentNotice') }}
           </p>
         </div>
       </div>
@@ -132,6 +132,9 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Message {
   type: 'user' | 'bot'
@@ -182,7 +185,7 @@ const sendMessage = () => {
     isTyping.value = false
     messages.value.push({
       type: 'bot',
-      text: 'Gracias por tu interés. Actualmente estoy en desarrollo y pronto podré responder todas tus consultas sobre el clima. ¡Mantente atento! 🌤️',
+      text: t('chatbot.autoResponse'),
       time: getCurrentTime()
     })
     scrollToBottom()
